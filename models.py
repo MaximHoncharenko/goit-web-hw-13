@@ -3,6 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime, date
 from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy.ext.declarative import declarative_base
 
 # Базовий клас для всіх моделей
 Base = declarative_base()
@@ -14,6 +16,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    is_verified = Column(Boolean, default=False)  # Нове поле для верифікації email
 
     # Зв'язок один-до-багатьох з контактами
     contacts = relationship("Contact", back_populates="owner")
