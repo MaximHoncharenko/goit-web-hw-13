@@ -5,6 +5,9 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, date
 from jose import JWTError, jwt
 from typing import List, Optional
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.middleware import SlowAPIMiddleware
 
 import models
 import crud
@@ -148,3 +151,13 @@ def delete_contact(contact_id: int, db: Session = Depends(get_db), current_user:
     if db_contact is None or db_contact.owner_id != current_user.id:
         raise HTTPException(status_code=404, detail="Contact not found")
     return {"message": "Contact deleted successfully"}
+
+# Створюємо об'єкт Limiter (обмежувач запитів)
+limiter = Limiter(key_func=get_remote_address)
+
+# Ініціалізуємо FastAPI
+app = FastAPI()
+
+# Додаємо middleware для обмеження швидкості запитів
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
