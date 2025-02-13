@@ -3,6 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
 import os
+from models import User  # Adjust the import according to your project structure
 
 # Функція для надсилання email
 def send_email(to_email: str, token: str):
@@ -42,6 +43,12 @@ def create_email_verification_token(email: str) -> str:
 # Маршрут для надсилання токена підтвердження email
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, EmailStr
+
+# Функція для перевірки токена підтвердження email
+def verify_email_token(token: str) -> str:
+    """Перевіряє токен підтвердження email."""
+    # Тут має бути логіка перевірки токена
+    return "dummy_email@example.com"
 
 router = APIRouter()
 
