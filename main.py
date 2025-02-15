@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from passlib.context import CryptContext
@@ -6,6 +7,7 @@ from datetime import datetime, timedelta, date
 from jose import JWTError, jwt
 from typing import List, Optional
 from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from slowapi.middleware import SlowAPIMiddleware
 
@@ -152,12 +154,19 @@ def delete_contact(contact_id: int, db: Session = Depends(get_db), current_user:
         raise HTTPException(status_code=404, detail="Contact not found")
     return {"message": "Contact deleted successfully"}
 
-# Створюємо об'єкт Limiter (обмежувач запитів)
+# Створюємо об'єкт лімітера
 limiter = Limiter(key_func=get_remote_address)
 
-# Ініціалізуємо FastAPI
+# Створюємо FastAPI додаток
 app = FastAPI()
 
-# Додаємо middleware для обмеження швидкості запитів
+# Додаємо middleware для обробки перевищення ліміту
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Занадто багато запитів! Спробуйте пізніше."}
+    )
+
+# Додаємо ліміт для всього застосунку (опціонально)
 app.state.limiter = limiter
-app.add_middleware(SlowAPIMiddleware)
