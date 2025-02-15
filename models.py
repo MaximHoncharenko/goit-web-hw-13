@@ -16,8 +16,9 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    avatar_url = Column(String, nullable=True)  # Поле для аватара користувача
     is_verified = Column(Boolean, default=False)  # Нове поле для верифікації email
-
+    verification_code = Column(String, nullable=True)  # Код для підтвердження email
     # Зв'язок один-до-багатьох з контактами
     contacts = relationship("Contact", back_populates="owner")
 
